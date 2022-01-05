@@ -6,9 +6,11 @@ from moves import allPossibleMoves
 #declaring the initial position of the board in terms of associated variables.
 onBoard = "befcdfebaaaaaaaa00000000000000000000000000000000gggggggghijkljih"
 #onBoard = "0000a0000b0000d00000e000f0000c000g0000h0i000j000k000l00000000000"
+#onBoard = "00a0a00000a0a00000a0a000000c000000a0a000000000000000000000000000"
+#onBoard = "0000000000k00000000k0000k0000k00000k0000000k0000000000k000k000000"
+#onBoard = "0000000000000000000000000000000000a000000ggg0000000000000000000000"
 
-
-#create a grid of squares as per usual chess notation.
+#create a grid of squares as per usual chess notation. not currently being used
 rows = "ABCDEFGH"
 cols = "87654321"
 def grid(A, B):
@@ -26,12 +28,11 @@ for i in range(8):
         coordinates.append((x, y))
 
 rectangle = []
-x = 0
 for i in range(8):
-    topLeftY = 21 + (i)*94.9
+    topLeftY = 21 + i*95
     for j in range(8):
-        topLeftX = 23 + (j)*94.9
-        rectangle.append(pygame.Rect(topLeftX, topLeftY, 94.9, 94.9))
+        topLeftX = 23 + j*95
+        rectangle.append(pygame.Rect(topLeftX, topLeftY, 95, 95))
     topLeftY = 0
 
 def hover(rect, pos):
@@ -50,15 +51,17 @@ class Piece():
 
     #function to colour the squares of all legal moves of the piece the mouse is hovering over.
     def mouseOverlap(self):
-        colourRect = (255, 154, 153)
+        colourMoves = (255, 154, 153)
+        colourSquare = (255, 255, 255)
         pos = pygame.mouse.get_pos()
         for i in range(64):
             if hover(rectangle[i], pos):
                 if self.letter == onBoard[i]:
                     something = i
-                    squares = allPossibleMoves(something+1, self.colour, self.type)
+                    squares = allPossibleMoves(something+1, self.colour, self.type, onBoard)
                     for j in range(len(squares)):
-                        pygame.draw.rect(screen, colourRect, rectangle[squares[j]-1])
+                        pygame.draw.rect(screen, colourMoves, rectangle[squares[j] - 1])
+                        pygame.draw.rect(screen, colourSquare, rectangle[i])
 
 
 #introducing variables for each piece.
@@ -110,69 +113,6 @@ def letterToImage(letter):
     elif letter == ID[11]:
         return l.pic
 
-#loading required images.
-mainMenuD = pygame.image.load("mainMenuDefault.png")
-mainMenuH = pygame.image.load("mainMenuHighlighed.png")
-musicD = pygame.image.load("musicDefault.png")
-musicH = pygame.image.load("musicHighlighted.png")
-SFXD = pygame.image.load("SFXDefault.png")
-SFXH = pygame.image.load("SFXHighlighted.png")
-musicStrengthD = pygame.image.load("musicStrengthDefault.png")
-musicStrengthH= pygame.image.load("musicStrengthHighlighted.png")
-aboutD = pygame.image.load("aboutDefault.png")
-aboutH = pygame.image.load("abouthighlighted.png")
-newGameD = pygame.image.load("newGameDefault.png")
-newGameH = pygame.image.load("newGameHighlighted.png")
-soundSlider = pygame.image.load("soundSlider.png")
-
-#this class is for button clicks. This has redundancies that must be fixed on optimization.
-class Button():
-    Clicked = False
-    def __init__ (self, x, y, image):
-        self.image = image
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-        self.clicked = False
-        Button.Clicked = False
-
-    def draw(self):
-        action = False
-        pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(pos):
-            if pygame.mouse.get_pressed()[0] == 1 and Button.Clicked == False:
-                Button.Clicked = True
-                action = True
-        if pygame.mouse.get_pressed()[0] == 0:
-            Button.Clicked = False
-
-        screen.blit(self.image, (self.rect.x, self.rect.y))
-        return action
-
-    def put(self):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
-
-    def highlight(self):
-        highlight = False
-        pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(pos):
-            highlight = True
-            return highlight
-
-#creates instances of button variables.
-newGameHighlighted = Button(817.5, 275, newGameH)
-newGameDefault = Button(817.5, 275, newGameD)
-musicDefault = Button(817.5, 365, musicD)
-musicHighlighted = Button(817.5, 365, musicH)
-aboutDefault = Button(817.5, 455, aboutD)
-aboutHighlighted = Button(817.5, 455, aboutH)
-musicStrengthDefault = Button(817.5, 275, musicStrengthD)
-musicStrengthHighlighted = Button(817.5, 275, musicStrengthH)
-SFXDefault = Button(817.5, 365, SFXD)
-SFXHighlighted = Button(817.5, 365, SFXH)
-mainMenuDefault = Button(817.5, 455, mainMenuD)
-mainMenuHighlighted = Button(817.5, 455, mainMenuH)
-soundSliderB = Button(850, 455, soundSlider)
-
 #fillsthe pieces into the current position on the window board.
 def fillScreenBoard():
     for m in range(64):
@@ -202,40 +142,8 @@ newGameMenu = False
 running = True
 while running:
     screen.blit(background, (0, 0))
-    if mainMenu == True: #I think these can be turned into functions that are much more efficient. # (then call mainMenu())
-        musicDefault.put()
-        if musicDefault.highlight():
-            if musicHighlighted.draw():
-                musicMenu = True
-                mainMenu = False
-        newGameDefault.put()
-        if newGameDefault.highlight():
-            if newGameHighlighted.draw():
-                newGameMenu = True
-                mainMenu = False
-        aboutDefault.put()
-        if aboutDefault.highlight():
-            if aboutHighlighted.draw():
-                aboutMenu = True
-                mainMenu = False
-
-    if musicMenu == True:
-        musicStrengthDefault.put()
-        if musicStrengthDefault.highlight():
-            if musicStrengthHighlighted.draw():
-                print("not built yet")
-        SFXDefault.put()
-        if SFXDefault.highlight():
-            if SFXHighlighted.draw():
-                print("not built yet")
-        mainMenuDefault.put()
-        if mainMenuDefault.highlight():
-            if mainMenuHighlighted.draw():
-                mainMenu = True
-                musicMenu = False
-
-    fillScreenBoard()
     highlightMoves()
+    fillScreenBoard()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
