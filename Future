@@ -1,0 +1,21 @@
+This file will summarize where I think this project will go in the future. 
+
+The first step is completing the game and working out the bugs I have created. 
+I am currently in the process of improving the code, and going back through to fix little mistakes I made. 
+As I progress, I find issues that I caused previously that must be fixed. 
+
+The current ;argest bug I am fixing right now involves the moves in a game. The system I had in place caused issues, and would reset things that they shouldnt. 
+This prevented the game from being playable or fun, due to non-chess related issues. 
+
+Whenever the player was in check, it would not prevent future illegal moves to be fixed. 
+While there was a system in place, it was inefficient and had serious issues that need to be worked out. 
+
+I also "Finished" the game without en passant. Silly mistake. 
+
+Ideally, I could progress to implement something chess and machine learning based.
+while this is way more complicated than I am ready for at the moment, I don't see a reason I shouldnt such ambitious long term goals. 
+
+I also want to implement different features. It would be interesting to allow the player to choose between 5x5 boards and 8x8 boards, etc. 
+It would be interesting to try to implement some more advanced chess features shown on chess.com such as fog of war, bughouse, etc. 
+
+I don't have a timeline to work on this project. 
