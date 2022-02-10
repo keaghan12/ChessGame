@@ -3,9 +3,14 @@ import numpy as np
 import pygame.display
 from moves import allPossibleMoves
 
+onlyOne = True
+clicking = False
+squares = []
+#FEN  = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+
 #declaring the initial position of the board in terms of associated variables.
-onBoard = "befcdfebaaaaaaaa00000000000000000000000000000000gggggggghijkljih"
-#onBoard = "0000a0000b0000d00000e000f0000c000g0000h0i000j000k000l00000000000"
+#onBoard = "befcdfebaaaaaaaa00000000000000000000000000000000gggggggghijkljih"
+onBoard = "0000a0000b0000d00000e000f0000c000g0000h0i000j000k000l00000000000"
 #onBoard = "00a0a00000a0a00000a0a000000c000000a0a000000000000000000000000000"
 #onBoard = "0000000000k00000000k0000k0000k00000k0000000k0000000000k000k000000"
 #onBoard = "0000000000000000000000000000000000a000000ggg0000000000000000000000"
@@ -17,6 +22,10 @@ def grid(A, B):
     return [b+a for a in A for b in B]
 listSquares = grid(cols, rows)
 board = np.array(listSquares).reshape(8, 8)
+
+movingPiece = []
+for i in range(64):
+    movingPiece.append(0)
 
 #creating a grid with the coordinates of each square.
 gridSize = 95
@@ -33,7 +42,6 @@ for i in range(8):
     for j in range(8):
         topLeftX = 23 + j*95
         rectangle.append(pygame.Rect(topLeftX, topLeftY, 95, 95))
-    topLeftY = 0
 
 def hover(rect, pos):
     if rect.collidepoint(pos[0], pos[1]):
@@ -48,20 +56,31 @@ class Piece():
         self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
         self.letter = letter
+        self.clicked = False
 
     #function to colour the squares of all legal moves of the piece the mouse is hovering over.
     def mouseOverlap(self):
         colourMoves = (255, 154, 153)
         colourSquare = (255, 255, 255)
+        global squares
         pos = pygame.mouse.get_pos()
-        for i in range(64):
-            if hover(rectangle[i], pos):
-                if self.letter == onBoard[i]:
-                    something = i
-                    squares = allPossibleMoves(something+1, self.colour, self.type, onBoard)
-                    for j in range(len(squares)):
-                        pygame.draw.rect(screen, colourMoves, rectangle[squares[j] - 1])
-                        pygame.draw.rect(screen, colourSquare, rectangle[i])
+        global clicking
+        global onlyOne
+        for i in range(64): # this can probably be "for __ in rectangle... or whatever the syntax"
+             if onlyOne == True:
+                if hover(rectangle[i], pos):
+                    if pygame.MOUSEBUTTONUP:
+                        for k in range(64):
+                            movingPiece[k] = 0
+                    movingPiece[i] = 1
+                    if self.letter == onBoard[i]:
+                        something = i
+                        squares = allPossibleMoves(something+1, self.colour, self.type, onBoard)
+                        for j in range(len(squares)):
+                            pygame.draw.rect(screen, colourMoves, rectangle[squares[j] - 1])
+                            pygame.draw.rect(screen, colourSquare, rectangle[i])
+                        #drag_id = 0
+
 
 
 #introducing variables for each piece.
@@ -113,16 +132,40 @@ def letterToImage(letter):
     elif letter == ID[11]:
         return l.pic
 
+dragging = False
 #fillsthe pieces into the current position on the window board.
 def fillScreenBoard():
+    global clicking
+    global onlyOne
+    global squares
     for m in range(64):
         letter = onBoard[m]
         if letter in ID:
-            screen.blit(pygame.image.load(letterToImage(letter)), (coordinates[m]))
+            if movingPiece[m] == 0:
+                #add another if statement here to check if the piece is being clicked on or not.
+                screen.blit(pygame.image.load(letterToImage(letter)), (coordinates[m]))
+            else:
+                dragx, dragy = pygame.mouse.get_pos()
+                dragx -= 95 / 2
+                dragy -= 95 / 2
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    onlyOne = pygame.mouse.get_pos()
+                    if event.button == 1:
+                        clicking = True
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        clicking = False
+
+
+                if clicking == True:
+                    screen.blit(pygame.image.load(letterToImage(letter)), (dragx, dragy))
+                    onlyOne = False
+                else:
+                    screen.blit(pygame.image.load(letterToImage(letter)), (coordinates[m]))
+                    onlyOne = True
 
 #highlights the actual squares on the board.
-def highlightMoves():
-    a.mouseOverlap()
+def highlightMoves():#this is the least optimized way to do this, i'm struggling a bit.
     b.mouseOverlap()
     c.mouseOverlap()
     d.mouseOverlap()
@@ -146,6 +189,8 @@ while running:
     fillScreenBoard()
 
     for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONUP:
+            clicking = False
         if event.type == pygame.QUIT:
             running = False
 
