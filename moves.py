@@ -1,22 +1,22 @@
-def allPossibleMoves(x, colour, pieceType, onBoard):
+def allPossibleMoves(x, onBoard, whiteToMove, castles, enPassant):
     validMoveList = []
-    #En-Passant, pawn promotions, moving in/out of check, castling, if pieces are in the way.
+    #Pawn promotions, moving in/out of check, castling.
     #all of the above still need to be completed.
 
-    if colour == "white":
+    if whiteToMove:
+        colour = "white"
         oppositeColour = "abcdef"
         sameColour = "ghijkl"
-    elif colour == "black":
+    else:
+        colour = "black"
         oppositeColour = "ghijkl"
         sameColour = "abcdef"
-    else:
-        sameColour = ""
-        oppositeColour = ""
-        print("invalid colour")
+
+    pieceType = onBoard[x-1]
 
     pieces = sameColour+oppositeColour
 
-    if pieceType == "king":#all possible moves if piece on x is king.
+    if pieceType == "e" or pieceType == "k":#all possible moves if piece on x is king.
         listKingMoves = [x-9, x-8, x-7, x-1, x+1, x+7, x+8, x+9]
         if 9 > x:
             listKingMoves = [e for e in listKingMoves if e not in (x-9, x-8, x-7)]
@@ -31,11 +31,10 @@ def allPossibleMoves(x, colour, pieceType, onBoard):
             if onBoard[listKingMoves[i]-1] not in sameColour:
                 validMoveList.append(listKingMoves[i])
 
-
         #need to cover castling, active check, and moving into check.
         return validMoveList
 
-    if pieceType == "knight":#all possible moves if piece on x is knight.
+    if pieceType == "b" or pieceType == "h":#all possible moves if piece on x is knight.
         listKnightMoves = [-17, -15, -10, -6, 6, 10, 15, 17]
         if 9 > x:
             listKnightMoves = [e for e in listKnightMoves if e not in (-17, -15, -10, -6)]
@@ -60,12 +59,10 @@ def allPossibleMoves(x, colour, pieceType, onBoard):
                 validMoveList.append(listKnightMoves[i])
         return validMoveList
 
-    if pieceType == "queen" or pieceType == "bishop" or pieceType == "rook":#all possible moves if piece on x is queen, rook or bishop.
+    if pieceType == "j" or pieceType == "d" or pieceType == "c" or pieceType == "i" or pieceType == "a" or pieceType == "g":#all possible moves if piece on x is queen, rook or bishop.
         listQueenMoves = []
         listBishopMoves = []
         listRookMoves = []
-
-
 
         canMoveRight = True
         canMoveLeft = True
@@ -160,16 +157,17 @@ def allPossibleMoves(x, colour, pieceType, onBoard):
                 else: downRight = False
 
 
-        if pieceType == "rook":
+        if pieceType == "a" or pieceType == "g":
             return listRookMoves
-        if pieceType == "bishop":
+        if pieceType == "c" or pieceType == "i":
             return listBishopMoves
-        if pieceType == "queen":
+        if pieceType == "j" or pieceType == "d":
             return listBishopMoves + listRookMoves
 
-    if pieceType == "pawn":#all moves for black pawns
+    if pieceType == "f" or pieceType == "l":#all moves for black pawns
         listBlackPawnMoves = []
         listWhitePawnMoves = []
+
         if colour == "black":
             if onBoard[x+7] not in pieces:
                 listBlackPawnMoves.append(x+8)
@@ -194,5 +192,11 @@ def allPossibleMoves(x, colour, pieceType, onBoard):
             return listWhitePawnMoves
 
 
-    #need to include en-passant for both black and white pawns.
+        #Check FEN notation for square names, if square name exists, add the x value of the square to a pieces clone, and check the clone for pawn capture squares.
+
     #need to include promotion
+
+#onBoard = 'abcdecbaff0fffff0000000000f000000000l00000000h00llll0lllghijki0g'
+
+#example = allPossibleMoves(x, onBoard, True, True, True)
+#print(example)
